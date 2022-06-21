@@ -1,0 +1,35 @@
+{
+  "name": "projeto12-batepapo-uol-api",
+  "version": "1.0.0",
+  "description": "Projeto 12 do Bootcamp Driven - Bate Papo UOL API",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "Nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/grakzanchetta/projeto12-batepapo-uol-api.git"
+  },
+  "keywords": [
+    "API",
+    "Back-End",
+    "MongoDB"
+  ],
+  "author": "Gabriel Rak Zanchetta",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/grakzanchetta/projeto12-batepapo-uol-api/issues"
+  },
+  "homepage": "https://github.com/grakzanchetta/projeto12-batepapo-uol-api#readme",
+  "dependencies": {
+    "chalk": "^5.0.1",
+    "cors": "^2.8.5",
+    "dayjs": "^1.11.3",
+    "dotenv": "^16.0.1",
+    "express": "^4.18.1",
+    "joi": "^17.6.0",
+    "mongodb": "^4.7.0",
+    "nodemon": "^2.0.16"
+  }
+}
