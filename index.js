@@ -1,7 +1,7 @@
 import cors from 'cors';
 import dayjs from 'dayjs';
 import dotenv from 'dotenv'
-import express, { json } from 'express';
+import express, { json, request } from 'express';
 import joi from 'joi';
 import{ MongoClient } from 'mongodb';
 
@@ -64,6 +64,43 @@ app.get('/participants', async (request, response) => {
         response.send('Não foi possível retornar a lista de participantes!')
     }
 });
+
+app.post('/messages', async (request, response) => {
+    const message = request.body;
+    const { user } = request.headers;
+    const messageSchema = joi.object ({
+        to: joi.string().required(),
+        text:joi.string().required(),
+        type: joi.string().valid('message', 'private_message').required()
+    });
+    const { error } = messageSchema.validate(message)
+    if (error){
+        response.sendStatus(422);
+        return;
+    }
+    try {
+        const participant = await db.collection('participants').findOne({
+            name: user
+        })
+        if (!participant){
+            response.sendStatus(422);
+            return;
+        }
+    await db.collection('messages').insertOne({
+        from: user,
+        to: message.to,
+        text: message.text,
+        type: message.text,
+        time: dayjs().format('HH:mm:ss')  
+    });
+    response.sendStatus(201);
+    } catch (error){
+        console.log(error);
+        response.send('Mensagem não enviada!');
+    }
+});
+
+
 
 
 app.listen(port)
