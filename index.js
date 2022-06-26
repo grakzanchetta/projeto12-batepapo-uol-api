@@ -12,6 +12,7 @@ app.use(json());
 const port = process.env.PORT;
 const conexaoBanco = process.env.MONGO_URL;
 const bancoMensagens = process.env.DB_PROJETO;
+const TIME_BANK = 15000;
 
 let db = null;
 const mongoClient = new MongoClient(conexaoBanco);
@@ -132,13 +133,35 @@ app.post('/status', async (request, response) => {
             return response.sendStatus(404);
         }
         await db.collection("participants").updateOne({ name: user }, { $set: { lastStatus: Date.now() } });
-        res.sendStatus(200);
+        response.sendStatus(200);
 
     } catch (error) {
         console.log(error);
     }
-
-
 });
+
+setInterval(async () => {
+  const seconds = Date.now() - (10000)
+  try {
+    const inactiveUsers = await db.collection("participants").find({ lastStatus: { $lte: seconds } }).toArray();
+    if (inactiveUsers.length > 0) {
+      const inactiveMessage = inactiveUsers.map(inactiveUser => {
+        return {
+          from: inactiveUser.name,
+          to: 'Todos',
+          text: 'sai da sala...',
+          type: 'status',
+          time: dayjs().format("HH:mm:ss")
+        }
+      });
+
+      await db.collection("messages").insertMany(inactiveMessage);
+      await db.collection("participants").deleteMany({ lastStatus: { $lte: seconds } });
+    }
+  } catch (error) {
+    console.log("Erro ao remover usuários!");
+  }
+}, TIME_BANK);
+
 
 app.listen(port)
