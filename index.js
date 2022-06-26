@@ -59,7 +59,7 @@ app.get('/participants', async (request, response) => {
     try {
         const participants = await db.collection('participants').find().toArray();
         response.send(participants);
-    } catch {
+    } catch (error) {
         console.log(error);
         response.send('Não foi possível retornar a lista de participantes!')
     }
@@ -90,7 +90,7 @@ app.post('/messages', async (request, response) => {
         from: user,
         to: message.to,
         text: message.text,
-        type: message.text,
+        type: message.type,
         time: dayjs().format('HH:mm:ss')  
     });
     response.sendStatus(201);
@@ -100,7 +100,29 @@ app.post('/messages', async (request, response) => {
     }
 });
 
+app.get('/messages', async (request, response) => {
+    const limit = parseInt(request.query.limit);
+    const user = request.headers;
 
+    try {
+        const messages = await db.collection("messages").find().toArray();
+        const filteredMessages = messages.filter(message => {
+          const { from, to, type } = message;
+          const toUser = to === "Todos" || (to === user || from === user);
+          const isPublic = type === "message";
+    
+          return toUser || isPublic;
+        });
+    
+        if (limit && limit !== NaN) {
+          return response.send(filteredMessages.slice(-limit));
+        }
+        response.send(filteredMessages);
+    } catch (error){
+        console.log(error)
+        console.log("Erro ao obter mensagens!");
+    }
+});
 
 
 app.listen(port)
