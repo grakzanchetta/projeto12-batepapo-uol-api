@@ -102,7 +102,7 @@ app.post('/messages', async (request, response) => {
 
 app.get('/messages', async (request, response) => {
     const limit = parseInt(request.query.limit);
-    const user = request.headers;
+    const { user } = request.headers;
 
     try {
         const messages = await db.collection("messages").find().toArray();
@@ -124,5 +124,21 @@ app.get('/messages', async (request, response) => {
     }
 });
 
+app.post('/status', async (request, response) => {
+    const { user } = request.headers;
+    try {
+        const participant = await db.collection('participants').findOne({name: user});
+        if(!participant){
+            return response.sendStatus(404);
+        }
+        await db.collection("participants").updateOne({ name: user }, { $set: { lastStatus: Date.now() } });
+        res.sendStatus(200);
+
+    } catch (error) {
+        console.log(error);
+    }
+
+
+});
 
 app.listen(port)
