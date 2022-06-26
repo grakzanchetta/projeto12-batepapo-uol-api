@@ -37,25 +37,33 @@ app.post('/participants', async (request, response) => {
             response.sendStatus(409);
             return;    
         }
-
     await db.collection('participants').insertOne({ 
         name: participant.name,
         lastStatus: Date.now()
-    })
+    });
     await db.collection('messages').insertOne({
         from: participant.name,
         to: 'Todos',
         text: 'entra na sala...',
         type: 'status',
         time: dayjs().format('HH:mm:ss')
-    })
-
+    });
     response.sendStatus(201)
-    
     } catch (error){
-        response.send('Participante não registrado!')
+        console.log(error);
+        response.send('Participante não registrado!');
     }
-})
+});
+
+app.get('/participants', async (request, response) => {
+    try {
+        const participants = await db.collection('participants').find().toArray();
+        response.send(participants);
+    } catch {
+        console.log(error);
+        response.send('Não foi possível retornar a lista de participantes!')
+    }
+});
 
 
 app.listen(port)
